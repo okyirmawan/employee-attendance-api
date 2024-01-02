@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	db2 "github.com/okyirmawan/employee-attendance-api/db"
 	"github.com/okyirmawan/employee-attendance-api/injection"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func Init() *echo.Echo {
@@ -25,6 +26,8 @@ func Init() *echo.Echo {
 	}))
 
 	EmployeeRoute(routes, employeeAPI)
+
+	routes.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	return routes
 }

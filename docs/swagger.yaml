@@ -1,0 +1,73 @@
+definitions:
+  dto.EmployeeDTO:
+    properties:
+      date_of_birth:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nip:
+        type: string
+    required:
+    - date_of_birth
+    - gender
+    - name
+    - nip
+    type: object
+  handler.ErrorResp:
+    properties:
+      errorCode:
+        type: integer
+      messages: {}
+    type: object
+info:
+  contact: {}
+paths:
+  /employees:
+    get:
+      description: Retrieve a list of all employees.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.EmployeeDTO'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Retrieve all employees
+    post:
+      consumes:
+      - application/json
+      description: Create a new employee with the provided data.
+      parameters:
+      - description: Employee data
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EmployeeDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EmployeeDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Create a new employee
+swagger: "2.0"

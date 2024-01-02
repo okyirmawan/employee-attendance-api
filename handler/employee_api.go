@@ -16,6 +16,12 @@ func ProviderEmployeeAPI(k service.EmployeeService) EmployeeAPI {
 	return EmployeeAPI{EmployeeService: k}
 }
 
+// @Summary Retrieve all employees
+// @Description Retrieve a list of all employees.
+// @Produce json
+// @Success 200 {array} dto.EmployeeDTO
+// @Failure 204 {object} ErrorResp
+// @Router /employees [get]
 func (m *EmployeeAPI) FindAll(e echo.Context) error {
 
 	employees := m.EmployeeService.FindAll()
@@ -27,6 +33,15 @@ func (m *EmployeeAPI) FindAll(e echo.Context) error {
 	return SuccessResponse(e, http.StatusOK, employees)
 }
 
+// @Summary Create a new employee
+// @Description Create a new employee with the provided data.
+// @Accept json
+// @Produce json
+// @Param employee body dto.EmployeeDTO true "Employee data"
+// @Success 200 {object} dto.EmployeeDTO
+// @Failure 400 {object} ErrorResp
+// @Failure 500 {object} ErrorResp
+// @Router /employees [post]
 func (m *EmployeeAPI) Create(e echo.Context) error {
 	var newDto dto.EmployeeDTO
 	if err := e.Bind(&newDto); err != nil {
