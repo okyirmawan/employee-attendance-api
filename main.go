@@ -11,9 +11,9 @@ func main() {
 	docs.SwaggerInfo.Title = "Swagger Example API"
 	docs.SwaggerInfo.Description = "This is a employee attendance API."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:8888"
+	docs.SwaggerInfo.Host = "localhost:8080"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
-	routes := routes2.Init()
 
-	routes.Logger.Fatal(routes.Start(":8888"))
+	routes := routes2.Init()
+	routes.Logger.Fatal(routes.Start(":8080"))
 }
