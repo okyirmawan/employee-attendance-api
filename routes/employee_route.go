@@ -8,14 +8,13 @@ import (
 
 func EmployeeRoute(routes *echo.Echo, api handler.EmployeeAPI) {
 
-	employeeMiddlewareRoute := routes.Group("/employees")
+	employeeMiddlewareRoute := routes.Group("/")
 	employeeMiddlewareRoute.Use(middlewares.JwtAuthMiddleware)
+	employeeMiddlewareRoute.PUT("employees", api.Update)
+	employeeMiddlewareRoute.DELETE("employees", api.Delete)
 
 	routes.POST("/employees/login", api.Login)
 	routes.POST("/employees", api.Create)
 	routes.GET("/employees", api.FindAll)
 	routes.GET("/employees/:nip", api.FindByNip)
-
-	employeeMiddlewareRoute.PUT("/employees", api.Update)
-	employeeMiddlewareRoute.DELETE("/employees", api.Delete)
 }
