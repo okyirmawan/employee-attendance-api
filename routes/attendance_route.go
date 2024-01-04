@@ -13,5 +13,5 @@ func AttendanceRoute(routes *echo.Echo, api handler.AttendanceAPI) {
 
 	attendanceMiddlewareRoute.POST("/checkin", api.CheckIn)
 	attendanceMiddlewareRoute.PUT("/checkout/:id", api.CheckOut)
-	attendanceMiddlewareRoute.GET("/history/:employee_id", api.History)
+	attendanceMiddlewareRoute.GET("/history", api.History)
 }

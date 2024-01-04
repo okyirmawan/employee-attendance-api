@@ -138,8 +138,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/attendances/history/{employee_id}": {
-            "put": {
+        "/attendances/history": {
+            "get": {
                 "security": [
                     {
                         "BearerToken": []
@@ -159,13 +159,6 @@ const docTemplate = `{
                         "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
                         "name": "Authorization",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Employee ID",
-                        "name": "id",
-                        "in": "path",
                         "required": true
                     }
                 ],
@@ -453,14 +446,10 @@ const docTemplate = `{
         "dto.AttendanceRequest": {
             "type": "object",
             "required": [
-                "employee_id",
                 "latitude",
                 "longitude"
             ],
             "properties": {
-                "employee_id": {
-                    "type": "integer"
-                },
                 "latitude": {
                     "type": "string"
                 },

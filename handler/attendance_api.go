@@ -39,12 +39,11 @@ func (m *AttendanceAPI) CheckIn(e echo.Context) error {
 	}
 
 	var request dto.AttendanceRequest
-	request.EmployeeId = employeeId
 	if err := e.Bind(&request); err != nil {
 		return ErrorResponse(e, http.StatusBadRequest, "Invalid body request")
 	}
 
-	res, err := m.AttendanceService.CheckIn(request)
+	res, err := m.AttendanceService.CheckIn(request, employeeId)
 	if err != nil {
 		return ErrorResponse(e, http.StatusInternalServerError, err.Error())
 	}
@@ -73,17 +72,16 @@ func (m *AttendanceAPI) CheckOut(e echo.Context) error {
 	}
 
 	var request dto.AttendanceRequest
-	request.EmployeeId = employeeId
 	if err := e.Bind(&request); err != nil {
 		return ErrorResponse(e, http.StatusBadRequest, "Invalid body request")
 	}
 
-	id, err := strconv.Atoi(e.Param("id"))
+	attendanceId, err := strconv.Atoi(e.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid attendance ID")
 	}
 
-	res, err := m.AttendanceService.CheckOut(request, uint64(id))
+	res, err := m.AttendanceService.CheckOut(request, employeeId, uint64(attendanceId))
 	if err != nil {
 		return ErrorResponse(e, http.StatusInternalServerError, err.Error())
 	}
@@ -97,18 +95,17 @@ func (m *AttendanceAPI) CheckOut(e echo.Context) error {
 // @Produce json
 // @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
 // @Security BearerToken
-// @Param id path string true "Employee ID"
 // @Success 200 {object} SuccessResp "Success response"
 // @Failure 400 {object} ErrorResp
 // @Failure 500 {object} ErrorResp
-// @Router /attendances/history/{employee_id} [put]
+// @Router /attendances/history [get]
 func (m *AttendanceAPI) History(e echo.Context) error {
 	employeeId, err := token.ExtractTokenID(e)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	attendances := m.AttendanceService.AttendanceHistory(uint64(employeeId))
+	attendances := m.AttendanceService.AttendanceHistory(employeeId)
 
 	return SuccessResponse(e, http.StatusOK, attendances)
 }

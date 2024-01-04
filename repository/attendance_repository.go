@@ -10,6 +10,7 @@ import (
 type AttendanceRepositoryContract interface {
 	FindById(id uint64) (domain.Attendance, error)
 	FindByEmployeeId(id uint64) []domain.Attendance
+	FindByDateAndEmployeeId(date string, id uint64) domain.Attendance
 	CheckIn(attendance domain.Attendance) (domain.Attendance, error)
 	CheckOut(attendance domain.Attendance, id uint64) (domain.Attendance, error)
 }
@@ -44,6 +45,17 @@ func (m *AttendanceRepository) FindByEmployeeId(id uint64) []domain.Attendance {
 	m.DB.Where("employee_id =? ", id).Find(&attendances)
 
 	return attendances
+}
+
+func (m *AttendanceRepository) FindByDateAndEmployeeId(date string, id uint64) domain.Attendance {
+	var attendance domain.Attendance
+
+	startOfDay := date + " 00:00:00"
+	endOfDay := date + " 23:59:59"
+
+	m.DB.Where("employee_id = ? AND check_in BETWEEN ? AND ?", id, startOfDay, endOfDay).First(&attendance)
+
+	return attendance
 }
 
 func (m *AttendanceRepository) CheckIn(attendance domain.Attendance) (domain.Attendance, error) {

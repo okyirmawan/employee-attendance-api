@@ -1,14 +1,11 @@
 definitions:
   dto.AttendanceRequest:
     properties:
-      employee_id:
-        type: integer
       latitude:
         type: string
       longitude:
         type: string
     required:
-    - employee_id
     - latitude
     - longitude
     type: object
@@ -141,18 +138,13 @@ paths:
       summary: Check-out for attendance
       tags:
       - Attendances
-  /attendances/history/{employee_id}:
-    put:
+  /attendances/history:
+    get:
       description: Retrieve a list of all attendance.
       parameters:
       - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Employee ID
-        in: path
-        name: id
         required: true
         type: string
       produces:
