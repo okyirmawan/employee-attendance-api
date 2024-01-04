@@ -8,10 +8,10 @@ import (
 type EmployeeRepositoryContract interface {
 	Create(employee domain.Employee) (domain.Employee, error)
 	FindAll() []domain.Employee
-	FindByID(id string) domain.Employee
+	FindByID(id uint64) domain.Employee
 	FindByNip(nip string) domain.Employee
 	Update(employee domain.Employee, id int) (domain.Employee, error)
-	DeleteEmployee(employee domain.Employee) error
+	Delete(employee domain.Employee) error
 }
 
 type EmployeeRepository struct {
@@ -37,7 +37,7 @@ func (m *EmployeeRepository) FindAll() []domain.Employee {
 	return employees
 }
 
-func (m *EmployeeRepository) FindByID(id string) domain.Employee {
+func (m *EmployeeRepository) FindByID(id uint64) domain.Employee {
 	var employee domain.Employee
 
 	m.DB.Where("id =? ", id).Find(&employee)
@@ -62,7 +62,7 @@ func (m *EmployeeRepository) Update(employee domain.Employee, id int) (domain.Em
 	return employee, nil
 }
 
-func (m *EmployeeRepository) DeleteEmployee(employee domain.Employee) error {
+func (m *EmployeeRepository) Delete(employee domain.Employee) error {
 	if err := m.DB.Delete(&employee).Error; err != nil {
 		return err
 	}

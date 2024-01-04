@@ -13,3 +13,9 @@ func initEmployeeAPI(db *gorm.DB) handler.EmployeeAPI {
 
 	return handler.EmployeeAPI{}
 }
+
+func initAttendanceAPI(db *gorm.DB) handler.AttendanceAPI {
+	wire.Build(repository.ProviderAttendanceRepository, service.ProviderAttendanceService, handler.ProviderAttendanceAPI)
+
+	return handler.AttendanceAPI{}
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/okyirmawan/employee-attendance-api/domain"
 	"github.com/okyirmawan/employee-attendance-api/dto"
+	"github.com/okyirmawan/employee-attendance-api/utils"
 	"time"
 )
 
@@ -16,8 +17,8 @@ func ToEmployeeDomain(dto dto.EmployeeDTO) domain.Employee {
 		Name:        dto.Name,
 		DateOfBirth: parsedDob,
 		Gender:      gender,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		CreatedAt:   utils.CurrentLocalTime(),
+		UpdatedAt:   utils.CurrentLocalTime(),
 	}
 }
 

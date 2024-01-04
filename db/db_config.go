@@ -32,7 +32,7 @@ func InitDB() *gorm.DB {
 func migrateDDL(db *gorm.DB) {
 	// migrasi domain ke tabel di mysql
 
-	db.AutoMigrate(&domain.Employee{})
+	db.AutoMigrate(&domain.Employee{}, &domain.Attendance{})
 }
 
 func processENV() {

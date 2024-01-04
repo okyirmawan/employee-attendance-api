@@ -1,8 +1,6 @@
 package service
 
 import (
-	"errors"
-	"github.com/okyirmawan/employee-attendance-api/domain"
 	"github.com/okyirmawan/employee-attendance-api/dto"
 	"github.com/okyirmawan/employee-attendance-api/mapper"
 	"github.com/okyirmawan/employee-attendance-api/repository"
@@ -13,7 +11,7 @@ type EmployeeRepositoryContract interface {
 	FindAll() []dto.EmployeeDTO
 	FindByNip(nim string) dto.EmployeeDTO
 	Update(dto dto.EmployeeDTO, id int) (dto.EmployeeDTO, error)
-	DeleteEmployee(id string) error
+	Delete(id string) error
 }
 
 type EmployeeService struct {
@@ -52,15 +50,10 @@ func (m *EmployeeService) Update(dto dto.EmployeeDTO, id int) (dto.EmployeeDTO, 
 	return mapper.ToEmployeeDto(employee), err
 }
 
-func (m *EmployeeService) DeleteEmployee(id string) error {
-
+func (m *EmployeeService) Delete(id uint64) error {
 	employee := m.EmployeeRepository.FindByID(id)
 
-	if employee == (domain.Employee{}) {
-		return errors.New("Employee not found")
-	}
-
-	err := m.EmployeeRepository.DeleteEmployee(employee)
+	err := m.EmployeeRepository.Delete(employee)
 	if err != nil {
 		return err
 	}

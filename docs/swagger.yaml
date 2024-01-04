@@ -17,15 +17,127 @@ definitions:
     - name
     - nip
     type: object
+  dto_request.CheckInDTO:
+    properties:
+      employee_id:
+        type: integer
+      location_in:
+        type: string
+    required:
+    - employee_id
+    - location_in
+    type: object
+  dto_request.CheckOutDTO:
+    properties:
+      employee_id:
+        type: integer
+      location_out:
+        type: string
+    required:
+    - employee_id
+    - location_out
+    type: object
   handler.ErrorResp:
     properties:
       errorCode:
         type: integer
       messages: {}
     type: object
+  handler.SuccessResp:
+    properties:
+      data: {}
+      success:
+        type: boolean
+    type: object
 info:
   contact: {}
 paths:
+  /attendance/checkin:
+    post:
+      consumes:
+      - application/json
+      description: Record check-in for attendance
+      parameters:
+      - description: Check In
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto_request.CheckInDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response
+          schema:
+            $ref: '#/definitions/handler.SuccessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Check-in for attendance
+  /attendance/checkout/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Record check-out for attendance
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Check Out
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto_request.CheckOutDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response
+          schema:
+            $ref: '#/definitions/handler.SuccessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Check-out for attendance
+  /attendance/history/{employee_id}:
+    put:
+      description: Retrieve a list of all attendance.
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response
+          schema:
+            $ref: '#/definitions/handler.SuccessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Find Attendance by Employee ID
   /employees:
     get:
       description: Retrieve a list of all employees.
@@ -70,4 +182,84 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResp'
       summary: Create a new employee
+  /employees/{id}:
+    delete:
+      description: Delete employee by ID
+      parameters:
+      - description: ID of the employee
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EmployeeDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Delete Employee
+    put:
+      description: Update employee details by ID
+      parameters:
+      - description: ID of the employee
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Employee details to be updated
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EmployeeDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EmployeeDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Update Employee
+  /employees/{nip}:
+    get:
+      description: Get employee details by NIP
+      parameters:
+      - description: NIP of the employee
+        in: path
+        name: nip
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EmployeeDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Find Employee by NIP
 swagger: "2.0"

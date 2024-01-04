@@ -7,8 +7,9 @@ import (
 
 func EmployeeRoute(routes *echo.Echo, api handler.EmployeeAPI) {
 
-	routes.POST("/employee", api.Create)
+	routes.POST("/employees", api.Create)
 	routes.GET("/employees", api.FindAll)
-	routes.GET("/employee/nip/:nip", api.FindByNip)
-	routes.PUT("/employee/:id", api.Update)
+	routes.GET("/employees/:nip", api.FindByNip)
+	routes.PUT("/employees/:id", api.Update)
+	routes.DELETE("/employees/:id", api.Delete)
 }

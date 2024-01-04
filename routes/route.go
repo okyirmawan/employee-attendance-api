@@ -12,6 +12,7 @@ func Init() *echo.Echo {
 	dbConfig := db2.InitDB()
 
 	employeeAPI := injection.InitEmployeeAPI(dbConfig)
+	attendanceAPI := injection.InitAttendanceAPI(dbConfig)
 
 	routes := echo.New()
 
@@ -26,6 +27,7 @@ func Init() *echo.Echo {
 	}))
 
 	EmployeeRoute(routes, employeeAPI)
+	AttendanceRoute(routes, attendanceAPI)
 
 	routes.GET("/swagger/*", echoSwagger.WrapHandler)
 
