@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"github.com/okyirmawan/employee-attendance-api/domain"
 )
@@ -10,8 +11,9 @@ type EmployeeRepositoryContract interface {
 	FindAll() []domain.Employee
 	FindByID(id uint64) domain.Employee
 	FindByNip(nip string) domain.Employee
-	Update(employee domain.Employee, id int) (domain.Employee, error)
+	Update(employee domain.Employee, id uint64) (domain.Employee, error)
 	Delete(employee domain.Employee) error
+	FindByUsername(username string) (domain.Employee, error)
 }
 
 type EmployeeRepository struct {
@@ -52,7 +54,7 @@ func (m *EmployeeRepository) FindByNip(nip string) domain.Employee {
 	return employee
 }
 
-func (m *EmployeeRepository) Update(employee domain.Employee, id int) (domain.Employee, error) {
+func (m *EmployeeRepository) Update(employee domain.Employee, id uint64) (domain.Employee, error) {
 	employee.ID = uint64(id)
 
 	if err := m.DB.Model(&domain.Employee{}).Where("id = ?", id).Updates(employee).Error; err != nil {
@@ -67,4 +69,19 @@ func (m *EmployeeRepository) Delete(employee domain.Employee) error {
 		return err
 	}
 	return nil
+}
+
+func (m *EmployeeRepository) FindByUsername(username string) (domain.Employee, error) {
+	var employee domain.Employee
+	result := m.DB.Where("username = ?", username).Find(&employee)
+
+	if result.RecordNotFound() {
+		return employee, errors.New("Employee not found")
+	}
+
+	if result.Error != nil {
+		return employee, result.Error
+	}
+
+	return employee, nil
 }

@@ -2,15 +2,14 @@ package service
 
 import (
 	"github.com/okyirmawan/employee-attendance-api/dto"
-	dto_request "github.com/okyirmawan/employee-attendance-api/dto/request"
 	"github.com/okyirmawan/employee-attendance-api/mapper"
 	"github.com/okyirmawan/employee-attendance-api/repository"
 )
 
 type AttendanceRepositoryContract interface {
-	AttendanceHistory(employeeId uint64) []dto.AttendanceDTO
-	CheckIn(dto dto_request.CheckInDTO) (dto.AttendanceDTO, error)
-	CheckOut(dto dto_request.CheckOutDTO, id uint64) (dto.AttendanceDTO, error)
+	AttendanceHistory(employeeId uint64) []dto.AttendanceResponse
+	CheckIn(dto dto.AttendanceRequest) (dto.AttendanceResponse, error)
+	CheckOut(dto dto.AttendanceRequest, id uint64) (dto.AttendanceResponse, error)
 }
 
 type AttendanceService struct {
@@ -23,22 +22,22 @@ func ProviderAttendanceService(m repository.AttendanceRepository) AttendanceServ
 	}
 }
 
-func (m *AttendanceService) CheckIn(dto dto_request.CheckInDTO) (dto.AttendanceDTO, error) {
-	attendanceEntity := mapper.CheckInDtoToAttendanceDomain(dto)
+func (m *AttendanceService) CheckIn(dto dto.AttendanceRequest) (dto.AttendanceResponse, error) {
+	attendanceEntity := mapper.CheckInRequestToDomain(dto)
 	attendance, err := m.AttendanceRepository.CheckIn(attendanceEntity)
 
-	return mapper.ToAttendanceDto(attendance), err
+	return mapper.DomainToAttendanceResponse(attendance), err
 }
 
-func (m *AttendanceService) CheckOut(dto dto_request.CheckOutDTO, id uint64) (dto.AttendanceDTO, error) {
-	attendanceEntity := mapper.CheckOutDtoToAttendanceDomain(dto)
+func (m *AttendanceService) CheckOut(dto dto.AttendanceRequest, id uint64) (dto.AttendanceResponse, error) {
+	attendanceEntity := mapper.CheckOutRequestToDomain(dto)
 	attendance, err := m.AttendanceRepository.CheckOut(attendanceEntity, id)
 
-	return mapper.ToAttendanceDto(attendance), err
+	return mapper.DomainToAttendanceResponse(attendance), err
 }
 
-func (m *AttendanceService) AttendanceHistory(employeeId uint64) []dto.AttendanceDTO {
+func (m *AttendanceService) AttendanceHistory(employeeId uint64) []dto.AttendanceResponse {
 	attendances := m.AttendanceRepository.FindByEmployeeId(employeeId)
 
-	return mapper.ToAttendanceDtoList(attendances)
+	return mapper.DomainToAttendanceResponseList(attendances)
 }

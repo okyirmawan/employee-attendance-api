@@ -1,6 +1,6 @@
 package dto
 
-type AttendanceDTO struct {
+type AttendanceResponse struct {
 	Id          uint64 `json:"id"`
 	EmployeeId  uint64 `json:"employee_id"`
 	CheckIn     string `json:"check_in"`

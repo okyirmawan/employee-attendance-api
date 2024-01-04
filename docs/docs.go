@@ -15,8 +15,13 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/attendance/checkin": {
+        "/attendances/checkin": {
             "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Record check-in for attendance",
                 "consumes": [
                     "application/json"
@@ -24,15 +29,25 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Attendances"
+                ],
                 "summary": "Check-in for attendance",
                 "parameters": [
                     {
-                        "description": "Check In",
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Attendance Request",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto_request.CheckInDTO"
+                            "$ref": "#/definitions/dto.AttendanceRequest"
                         }
                     }
                 ],
@@ -58,8 +73,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/attendance/checkout/{id}": {
+        "/attendances/checkout/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Record check-out for attendance",
                 "consumes": [
                     "application/json"
@@ -67,8 +87,18 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Attendances"
+                ],
                 "summary": "Check-out for attendance",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Attendance ID",
@@ -82,7 +112,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto_request.CheckOutDTO"
+                            "$ref": "#/definitions/dto.AttendanceRequest"
                         }
                     }
                 ],
@@ -108,14 +138,29 @@ const docTemplate = `{
                 }
             }
         },
-        "/attendance/history/{employee_id}": {
+        "/attendances/history/{employee_id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Retrieve a list of all attendance.",
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Attendances"
+                ],
                 "summary": "Find Attendance by Employee ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Employee ID",
@@ -152,14 +197,17 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Employees"
+                ],
                 "summary": "Retrieve all employees",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success response",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.EmployeeDTO"
+                                "$ref": "#/definitions/handler.SuccessResp"
                             }
                         }
                     },
@@ -171,31 +219,43 @@ const docTemplate = `{
                     }
                 }
             },
-            "post": {
-                "description": "Create a new employee with the provided data.",
-                "consumes": [
-                    "application/json"
+            "put": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
                 ],
+                "description": "Update employee details by authentication token",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create a new employee",
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Update Employee",
                 "parameters": [
                     {
-                        "description": "Employee data",
-                        "name": "employee",
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Employee details to be updated",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.EmployeeDTO"
+                            "$ref": "#/definitions/dto.EmployeeRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success response",
                         "schema": {
-                            "$ref": "#/definitions/dto.EmployeeDTO"
+                            "$ref": "#/definitions/handler.SuccessResp"
                         }
                     },
                     "400": {
@@ -211,38 +271,35 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/employees/{id}": {
-            "put": {
-                "description": "Update employee details by ID",
+            },
+            "post": {
+                "description": "Create a new employee with the provided data.",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Update Employee",
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Create a new employee",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the employee",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Employee details to be updated",
-                        "name": "body",
+                        "description": "Employee data",
+                        "name": "employee",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.EmployeeDTO"
+                            "$ref": "#/definitions/dto.EmployeeRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success response",
                         "schema": {
-                            "$ref": "#/definitions/dto.EmployeeDTO"
+                            "$ref": "#/definitions/handler.SuccessResp"
                         }
                     },
                     "400": {
@@ -260,25 +317,79 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete employee by ID",
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Delete employee by authentication token",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Employees"
                 ],
                 "summary": "Delete Employee",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID of the employee",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success response",
                         "schema": {
-                            "$ref": "#/definitions/dto.EmployeeDTO"
+                            "$ref": "#/definitions/handler.SuccessResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/employees/login": {
+            "post": {
+                "description": "Login with username and password to get token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Employees"
+                ],
+                "summary": "Login Employee",
+                "parameters": [
+                    {
+                        "description": "Login",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success response",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -302,6 +413,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Employees"
+                ],
                 "summary": "Find Employee by NIP",
                 "parameters": [
                     {
@@ -314,9 +428,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success response",
                         "schema": {
-                            "$ref": "#/definitions/dto.EmployeeDTO"
+                            "$ref": "#/definitions/handler.SuccessResp"
                         }
                     },
                     "400": {
@@ -336,58 +450,71 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.EmployeeDTO": {
+        "dto.AttendanceRequest": {
+            "type": "object",
+            "required": [
+                "employee_id",
+                "latitude",
+                "longitude"
+            ],
+            "properties": {
+                "employee_id": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EmployeeRequest": {
             "type": "object",
             "required": [
                 "date_of_birth",
+                "email",
                 "gender",
                 "name",
-                "nip"
+                "nip",
+                "password",
+                "username"
             ],
             "properties": {
                 "date_of_birth": {
                     "type": "string"
                 },
-                "gender": {
+                "email": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
+                "gender": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "nip": {
                     "type": "string"
-                }
-            }
-        },
-        "dto_request.CheckInDTO": {
-            "type": "object",
-            "required": [
-                "employee_id",
-                "location_in"
-            ],
-            "properties": {
-                "employee_id": {
-                    "type": "integer"
                 },
-                "location_in": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
         },
-        "dto_request.CheckOutDTO": {
+        "dto.LoginRequest": {
             "type": "object",
             "required": [
-                "employee_id",
-                "location_out"
+                "password",
+                "username"
             ],
             "properties": {
-                "employee_id": {
-                    "type": "integer"
+                "password": {
+                    "type": "string"
                 },
-                "location_out": {
+                "username": {
                     "type": "string"
                 }
             }

@@ -1,41 +1,51 @@
 definitions:
-  dto.EmployeeDTO:
+  dto.AttendanceRequest:
+    properties:
+      employee_id:
+        type: integer
+      latitude:
+        type: string
+      longitude:
+        type: string
+    required:
+    - employee_id
+    - latitude
+    - longitude
+    type: object
+  dto.EmployeeRequest:
     properties:
       date_of_birth:
         type: string
+      email:
+        type: string
       gender:
         type: string
-      id:
-        type: integer
       name:
         type: string
       nip:
         type: string
+      password:
+        type: string
+      username:
+        type: string
     required:
     - date_of_birth
+    - email
     - gender
     - name
     - nip
+    - password
+    - username
     type: object
-  dto_request.CheckInDTO:
+  dto.LoginRequest:
     properties:
-      employee_id:
-        type: integer
-      location_in:
+      password:
+        type: string
+      username:
         type: string
     required:
-    - employee_id
-    - location_in
-    type: object
-  dto_request.CheckOutDTO:
-    properties:
-      employee_id:
-        type: integer
-      location_out:
-        type: string
-    required:
-    - employee_id
-    - location_out
+    - password
+    - username
     type: object
   handler.ErrorResp:
     properties:
@@ -52,18 +62,23 @@ definitions:
 info:
   contact: {}
 paths:
-  /attendance/checkin:
+  /attendances/checkin:
     post:
       consumes:
       - application/json
       description: Record check-in for attendance
       parameters:
-      - description: Check In
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Attendance Request
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto_request.CheckInDTO'
+          $ref: '#/definitions/dto.AttendanceRequest'
       produces:
       - application/json
       responses:
@@ -79,13 +94,22 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.ErrorResp'
+      security:
+      - BearerToken: []
       summary: Check-in for attendance
-  /attendance/checkout/{id}:
+      tags:
+      - Attendances
+  /attendances/checkout/{id}:
     put:
       consumes:
       - application/json
       description: Record check-out for attendance
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Attendance ID
         in: path
         name: id
@@ -96,7 +120,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto_request.CheckOutDTO'
+          $ref: '#/definitions/dto.AttendanceRequest'
       produces:
       - application/json
       responses:
@@ -112,11 +136,20 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.ErrorResp'
+      security:
+      - BearerToken: []
       summary: Check-out for attendance
-  /attendance/history/{employee_id}:
+      tags:
+      - Attendances
+  /attendances/history/{employee_id}:
     put:
       description: Retrieve a list of all attendance.
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Employee ID
         in: path
         name: id
@@ -137,24 +170,58 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.ErrorResp'
+      security:
+      - BearerToken: []
       summary: Find Attendance by Employee ID
+      tags:
+      - Attendances
   /employees:
+    delete:
+      description: Delete employee by authentication token
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response
+          schema:
+            $ref: '#/definitions/handler.SuccessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      security:
+      - BearerToken: []
+      summary: Delete Employee
+      tags:
+      - Employees
     get:
       description: Retrieve a list of all employees.
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success response
           schema:
             items:
-              $ref: '#/definitions/dto.EmployeeDTO'
+              $ref: '#/definitions/handler.SuccessResp'
             type: array
         "204":
           description: No Content
           schema:
             $ref: '#/definitions/handler.ErrorResp'
       summary: Retrieve all employees
+      tags:
+      - Employees
     post:
       consumes:
       - application/json
@@ -165,14 +232,14 @@ paths:
         name: employee
         required: true
         schema:
-          $ref: '#/definitions/dto.EmployeeDTO'
+          $ref: '#/definitions/dto.EmployeeRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success response
           schema:
-            $ref: '#/definitions/dto.EmployeeDTO'
+            $ref: '#/definitions/handler.SuccessResp'
         "400":
           description: Bad Request
           schema:
@@ -182,52 +249,29 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResp'
       summary: Create a new employee
-  /employees/{id}:
-    delete:
-      description: Delete employee by ID
-      parameters:
-      - description: ID of the employee
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.EmployeeDTO'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResp'
-      summary: Delete Employee
+      tags:
+      - Employees
     put:
-      description: Update employee details by ID
+      description: Update employee details by authentication token
       parameters:
-      - description: ID of the employee
-        in: path
-        name: id
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
         required: true
-        type: integer
+        type: string
       - description: Employee details to be updated
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.EmployeeDTO'
+          $ref: '#/definitions/dto.EmployeeRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success response
           schema:
-            $ref: '#/definitions/dto.EmployeeDTO'
+            $ref: '#/definitions/handler.SuccessResp'
         "400":
           description: Bad Request
           schema:
@@ -236,7 +280,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.ErrorResp'
+      security:
+      - BearerToken: []
       summary: Update Employee
+      tags:
+      - Employees
   /employees/{nip}:
     get:
       description: Get employee details by NIP
@@ -250,9 +298,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success response
           schema:
-            $ref: '#/definitions/dto.EmployeeDTO'
+            $ref: '#/definitions/handler.SuccessResp'
         "400":
           description: Bad Request
           schema:
@@ -262,4 +310,36 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResp'
       summary: Find Employee by NIP
+      tags:
+      - Employees
+  /employees/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with username and password to get token.
+      parameters:
+      - description: Login
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResp'
+      summary: Login Employee
+      tags:
+      - Employees
 swagger: "2.0"

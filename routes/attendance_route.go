@@ -3,10 +3,15 @@ package routes
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/okyirmawan/employee-attendance-api/handler"
+	"github.com/okyirmawan/employee-attendance-api/middlewares"
 )
 
 func AttendanceRoute(routes *echo.Echo, api handler.AttendanceAPI) {
-	routes.POST("/attendance/checkin", api.CheckIn)
-	routes.PUT("/attendance/checkout/:id", api.CheckOut)
-	routes.GET("/attendance/history/:employee_id", api.History)
+
+	attendanceMiddlewareRoute := routes.Group("/attendances")
+	attendanceMiddlewareRoute.Use(middlewares.JwtAuthMiddleware)
+
+	attendanceMiddlewareRoute.POST("/checkin", api.CheckIn)
+	attendanceMiddlewareRoute.PUT("/checkout/:id", api.CheckOut)
+	attendanceMiddlewareRoute.GET("/history/:employee_id", api.History)
 }

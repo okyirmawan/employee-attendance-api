@@ -4,8 +4,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/okyirmawan/employee-attendance-api/dto"
 	"github.com/okyirmawan/employee-attendance-api/service"
+	"github.com/okyirmawan/employee-attendance-api/utils/token"
 	"net/http"
-	"strconv"
 )
 
 type EmployeeAPI struct {
@@ -18,15 +18,16 @@ func ProviderEmployeeAPI(k service.EmployeeService) EmployeeAPI {
 
 // @Summary Create a new employee
 // @Description Create a new employee with the provided data.
+// @Tags Employees
 // @Accept json
 // @Produce json
-// @Param employee body dto.EmployeeDTO true "Employee data"
-// @Success 200 {object} dto.EmployeeDTO
+// @Param employee body dto.EmployeeRequest true "Employee data"
+// @Success 200 {object} SuccessResp "Success response"
 // @Failure 400 {object} ErrorResp
 // @Failure 500 {object} ErrorResp
 // @Router /employees [post]
 func (m *EmployeeAPI) Create(e echo.Context) error {
-	var newDto dto.EmployeeDTO
+	var newDto dto.EmployeeRequest
 	if err := e.Bind(&newDto); err != nil {
 		return ErrorResponse(e, http.StatusBadRequest, "Invalid body request")
 	}
@@ -41,8 +42,9 @@ func (m *EmployeeAPI) Create(e echo.Context) error {
 
 // @Summary Retrieve all employees
 // @Description Retrieve a list of all employees.
+// @Tags Employees
 // @Produce json
-// @Success 200 {array} dto.EmployeeDTO
+// @Success 200 {array} SuccessResp "Success response"
 // @Failure 204 {object} ErrorResp
 // @Router /employees [get]
 func (m *EmployeeAPI) FindAll(e echo.Context) error {
@@ -58,9 +60,10 @@ func (m *EmployeeAPI) FindAll(e echo.Context) error {
 
 // @Summary Find Employee by NIP
 // @Description Get employee details by NIP
+// @Tags Employees
 // @Produce json
 // @Param nip path string true "NIP of the employee"
-// @Success 200 {object} dto.EmployeeDTO
+// @Success 200 {object} SuccessResp "Success response"
 // @Failure 400 {object} ErrorResp
 // @Failure 500 {object} ErrorResp
 // @Router /employees/{nip} [get]
@@ -72,26 +75,28 @@ func (m *EmployeeAPI) FindByNip(e echo.Context) error {
 }
 
 // @Summary Update Employee
-// @Description Update employee details by ID
+// @Description Update employee details by authentication token
+// @Tags Employees
+// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Produce json
-// @Param id path integer true "ID of the employee"
-// @Param body body dto.EmployeeDTO true "Employee details to be updated"
-// @Success 200 {object} dto.EmployeeDTO
+// @Param body body dto.EmployeeRequest true "Employee details to be updated"
+// @Success 200 {object} SuccessResp "Success response"
 // @Failure 400 {object} ErrorResp
 // @Failure 500 {object} ErrorResp
-// @Router /employees/{id} [put]
+// @Router /employees [put]
 func (m *EmployeeAPI) Update(e echo.Context) error {
-	var newDto dto.EmployeeDTO
+	var newDto dto.EmployeeRequest
 	if err := e.Bind(&newDto); err != nil {
 		return ErrorResponse(e, http.StatusBadRequest, "Invalid body request")
 	}
 
-	id, err := strconv.Atoi(e.Param("id"))
+	employeeId, err := token.ExtractTokenID(e)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid employee ID")
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	res, err := m.EmployeeService.Update(newDto, id)
+	res, err := m.EmployeeService.Update(newDto, employeeId)
 	if err != nil {
 		return ErrorResponse(e, http.StatusInternalServerError, err.Error())
 	}
@@ -100,23 +105,49 @@ func (m *EmployeeAPI) Update(e echo.Context) error {
 }
 
 // @Summary Delete Employee
-// @Description Delete employee by ID
+// @Description Delete employee by authentication token
+// @Tags Employees
+// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Produce json
-// @Param id path integer true "ID of the employee"
-// @Success 200 {object} dto.EmployeeDTO
+// @Success 200 {object} SuccessResp "Success response"
 // @Failure 400 {object} ErrorResp
 // @Failure 500 {object} ErrorResp
-// @Router /employees/{id} [delete]
+// @Router /employees [delete]
 func (m *EmployeeAPI) Delete(e echo.Context) error {
-	id, err := strconv.Atoi(e.Param("id"))
+	employeeId, err := token.ExtractTokenID(e)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid employee ID")
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	err = m.EmployeeService.Delete(uint64(id))
+	err = m.EmployeeService.Delete(employeeId)
 	if err != nil {
 		return ErrorResponse(e, http.StatusInternalServerError, err.Error())
 	}
 
 	return SuccessResponse(e, http.StatusOK, nil)
+}
+
+// @Summary Login Employee
+// @Description Login with username and password to get token.
+// @Tags Employees
+// @Accept json
+// @Produce json
+// @Param employee body dto.LoginRequest true "Login"
+// @Success 200 {string} SuccessResp "Success response"
+// @Failure 400 {object} ErrorResp
+// @Failure 500 {object} ErrorResp
+// @Router /employees/login [post]
+func (m *EmployeeAPI) Login(e echo.Context) error {
+	var request dto.LoginRequest
+	if err := e.Bind(&request); err != nil {
+		return ErrorResponse(e, http.StatusBadRequest, "Invalid body request")
+	}
+
+	auth, err := m.EmployeeService.Auth(request.Username, request.Password)
+	if err != nil {
+		return ErrorResponse(e, http.StatusInternalServerError, err.Error())
+	}
+
+	return SuccessResponse(e, http.StatusOK, auth)
 }

@@ -1,47 +1,34 @@
 package mapper
 
 import (
+	"fmt"
 	"github.com/okyirmawan/employee-attendance-api/domain"
 	"github.com/okyirmawan/employee-attendance-api/dto"
-	dto_request "github.com/okyirmawan/employee-attendance-api/dto/request"
 	"github.com/okyirmawan/employee-attendance-api/utils"
 )
 
-func CheckInDtoToAttendanceDomain(dto dto_request.CheckInDTO) domain.Attendance {
+func CheckInRequestToDomain(dto dto.AttendanceRequest) domain.Attendance {
 	return domain.Attendance{
 		EmployeeID: dto.EmployeeId,
 		CheckIn:    utils.CurrentLocalTime(),
 		CheckOut:   utils.CurrentLocalTime(),
-		LocationIn: dto.LocationIn,
+		LocationIn: fmt.Sprintf("%s,%s", dto.Latitude, dto.Longitude),
 		CreatedAt:  utils.CurrentLocalTime(),
 		UpdatedAt:  utils.CurrentLocalTime(),
 	}
 }
 
-func CheckOutDtoToAttendanceDomain(dto dto_request.CheckOutDTO) domain.Attendance {
+func CheckOutRequestToDomain(dto dto.AttendanceRequest) domain.Attendance {
 	return domain.Attendance{
 		EmployeeID:  dto.EmployeeId,
 		CheckOut:    utils.CurrentLocalTime(),
-		LocationOut: dto.LocationOut,
+		LocationOut: fmt.Sprintf("%s,%s", dto.Latitude, dto.Longitude),
 		UpdatedAt:   utils.CurrentLocalTime(),
 	}
 }
 
-func ToAttendanceDomain(dto dto.AttendanceDTO) domain.Attendance {
-	return domain.Attendance{
-		EmployeeID:  dto.EmployeeId,
-		CheckIn:     utils.ParseStringToDateTime(dto.CheckIn),
-		CheckOut:    utils.ParseStringToDateTime(dto.CheckOut),
-		TotalHours:  0,
-		LocationIn:  "",
-		LocationOut: "",
-		CreatedAt:   utils.CurrentLocalTime(),
-		UpdatedAt:   utils.CurrentLocalTime(),
-	}
-}
-
-func ToAttendanceDto(attendance domain.Attendance) dto.AttendanceDTO {
-	return dto.AttendanceDTO{
+func DomainToAttendanceResponse(attendance domain.Attendance) dto.AttendanceResponse {
+	return dto.AttendanceResponse{
 		Id:          attendance.ID,
 		EmployeeId:  attendance.EmployeeID,
 		CheckIn:     utils.ParseDateTimeToString(attendance.CheckIn),
@@ -51,12 +38,12 @@ func ToAttendanceDto(attendance domain.Attendance) dto.AttendanceDTO {
 	}
 }
 
-func ToAttendanceDtoList(attendances []domain.Attendance) []dto.AttendanceDTO {
-	dtos := make([]dto.AttendanceDTO, len(attendances))
+func DomainToAttendanceResponseList(attendances []domain.Attendance) []dto.AttendanceResponse {
+	attendancesDto := make([]dto.AttendanceResponse, len(attendances))
 
 	for i, item := range attendances {
-		dtos[i] = ToAttendanceDto(item)
+		attendancesDto[i] = DomainToAttendanceResponse(item)
 	}
 
-	return dtos
+	return attendancesDto
 }
